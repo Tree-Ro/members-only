@@ -1,0 +1,15 @@
+extends layout
+
+block content
+
+  h1 Log In: 
+
+  form(action='/login' method='POST')
+    if errors
+      li.error-message Email or Password is invalid
+    div.form-group
+      label Email:
+        input(type='email' autocomplete='email' name='email' value=(undefined===content ? '' : content.email))
+      label Password:
+        input(type='password' autocomplete='password' name='password' value=(undefined===content ? '' : content.email)) 
+    button(type='submit') Log in

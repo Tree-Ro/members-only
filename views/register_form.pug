@@ -1,0 +1,37 @@
+extends layout
+
+block content 
+
+  h1 Register an Account:
+
+  form(action='/register' method='POST' autocomplete="off")
+    div.form-group
+      label(for='username') Username: 
+        input(id='username' type='text' name='username' placeholder='The Great' autocomplete='username' value=(undefined===content ? '' : content.username))
+        if errors
+          for error in errors 
+            if error.path === 'username'
+              li #{error.msg}
+      label(for='email') Email:
+        input(id='email' type='email' name='email' placeholder='thegreat@gmail.com' autocomplete='email' value=(undefined===content ? '' : content.email))
+        if errors
+          for error in errors 
+            if error.path === 'email'
+              li #{error.msg}
+    div.form-group
+      label(for='password') Password:
+        input(id='password' type='password' name='password' autocomplete='new-password' value=undefined===content ? '' : content.password)
+        if errors
+          for error in errors 
+            if error.path === 'password'
+              li #{error.msg}
+      label(for='confirm-password') Confirm your password:
+        input(id='confirm-password' type='password' name='confirm-password' autocomplete='confirm-password' value=undefined===content ? '' : content['confirm-password'])
+        if errors
+          for error in errors 
+            if error.path === 'confirm-password'
+              li #{error.msg}
+    div.form-group
+      button(type='submit') Submit
+
+    
