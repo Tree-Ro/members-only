@@ -111,7 +111,7 @@ module.exports.logout_GET = (req, res, next) => {
 };
 
 module.exports.upgrade_GET = asyncHandler(async (req, res, next) => {
-  const currentUserRole = req.user.role;
+  const currentUserRole = req.user ? req.user.role : null;
   let query = {};
   let roles = Object.keys(roleHierarchy);
 
@@ -139,7 +139,7 @@ module.exports.upgrade_GET = asyncHandler(async (req, res, next) => {
 
 module.exports.upgrade_POST = asyncHandler(async (req, res) => {
   const { id, role } = req.body;
-  const currentUserId = req.user.id; // Assuming `req.user` contains the current user's info
+  const currentUser = req.user.id;
 
   // Validate request body
   if (!id || !role) {
@@ -151,8 +151,7 @@ module.exports.upgrade_POST = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid role.' });
   }
 
-  // Find the current user and target user
-  const currentUser = await User.findById(currentUserId);
+  // Find the target user
   const targetUser = await User.findById(id);
 
   if (!currentUser) {
@@ -164,7 +163,7 @@ module.exports.upgrade_POST = asyncHandler(async (req, res) => {
   }
 
   // Check if the current user has a higher role than the target user
-  if (roleHierarchy[currentUser.role] <= roleHierarchy[targetUser.role]) {
+  if (roleHierarchy[currentUser.role] < roleHierarchy[targetUser.role]) {
     return res.status(403).json({
       message: "You do not have permission to update this user's role.",
     });
@@ -203,7 +202,7 @@ module.exports.delete_POST = asyncHandler(async (req, res) => {
   }
 
   // Check if the current user has a higher role than the target user
-  if (roleHierarchy[currentUser.role] <= roleHierarchy[targetUser.role]) {
+  if (roleHierarchy[currentUser.role] < roleHierarchy[targetUser.role]) {
     return res.status(403).json({
       message: 'You do not have permission to delete this account.',
     });

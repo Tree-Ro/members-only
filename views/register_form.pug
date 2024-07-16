@@ -13,7 +13,7 @@ block content
             if error.path === 'username'
               li #{error.msg}
       label(for='email') Email:
-        input(id='email' type='email' name='email' placeholder='thegreat@gmail.com' autocomplete='email' value=(undefined===content ? '' : content.email))
+        input(id='email' type='email' name='email' placeholder="Email is not used, just write whatever email you want" autocomplete='email' value=(undefined===content ? '' : content.email))
         if errors
           for error in errors 
             if error.path === 'email'

@@ -1,12 +1,26 @@
 extends layout
 
 block content
-  h1 Message Board: 
+  h1 Message Board:
+  if user 
+    p Logged in as #[strong #{user.username}]
+    a(href='/new').new New Post?
 
   if (posts && posts.length)
-    each post in posts 
-      div.post
-        p.user By: #{post.user.username}
-        p.message= post.text
+    section.posts
+      each post in posts 
+        div.post
+          if user
+            p.user User: #{post.user ? post.user.username : '[Deleted User]'}
+          else 
+            a(href='/login') [User Hidden]
+
+          p(title='Counted based on Server time').createdDate Created: #{post.createdAtFormatted}
+          p.message= post.text
+
+          if user && user.role === 'admin'
+            form(action='/remove' method='POST')
+              input(type='hidden' name='id' value=post.id)
+              button(type='submit' title='Remove Post').remove X
   else 
     p Could not find any posts

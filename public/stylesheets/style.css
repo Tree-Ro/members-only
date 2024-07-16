@@ -7,18 +7,82 @@ a {
   color: #00B7FF;
 }
 
+.navbar {
+  display: flex;
+  gap: 10px;
 
-.form-group {
+  justify-content: end;
+}
+
+.post {
+  border: solid 2px black;
+  border-radius: 3px;
+  padding: 10px;
+
+  min-width: min-content;
+  max-width: 30%;
+
+  position: relative
+}
+
+.post .createdDate {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  color: gray;
+}
+
+.post .remove {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+.posts {
   display: grid;
-  margin: 20px;
+  grid-gap: 10px;
+}
 
-  width: 33%;
+form {
+  width: max-content
 }
 
 .form-group label {
   display: grid;
 }
 
-.form-group button {
-  width: max-content
+.accounts {
+  display: grid;
+  grid-gap: 5px;
+  padding: 5px;
+
+  width: 50%;
+}
+
+.account {
+  border: 2px solid black;
+  border-radius: 3px;
+  padding: 10px;
+
+  position: relative;
+}
+
+.account form[action="/delete"] {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.new {
+  display:grid;
+
+  justify-content: end;
+}
+
+@media only screen and (max-width: 600px) {
+  .post .createdDate {
+    display: none;
+  }
 }

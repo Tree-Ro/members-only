@@ -1,0 +1,15 @@
+extends layout
+
+block content
+
+  if user
+    h1 New Post: 
+
+    form(method='POST' action='/new')
+      div.form-group
+        label Message:
+          textarea(name='text' placeholder='Your message here...' maxLength=500 required)
+        input(type='hidden' name='id' value=user.id)
+      button(type='submit') Post
+  else 
+    h2 You need to #[a(href='/login') log in] to make a post
