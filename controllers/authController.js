@@ -88,13 +88,15 @@ module.exports.login_POST = [
   normalizeEmail,
 
   (req, res, next) => {
+    //Testing
     console.log(req.body);
-
+    console.log(req.session);
     next();
   },
 
   passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
+    failureMessage: true,
   }),
 ];
