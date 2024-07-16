@@ -6,6 +6,7 @@ const logger = require('morgan');
 
 //Session & Auth
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 
 const app = express();
@@ -27,7 +28,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Passport & Sessions
 const secret = process.env.SESSION_SECRET;
-app.use(session({ secret: secret, resave: false, saveUninitialized: true }));
+const mongodb_string = process.env.MONGODB_URL;
+app.use(
+  session({
+    secret: secret,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: mongodb_string }),
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 app.use(passport.session());
 app.use(passport.authenticate('session'));
 
@@ -35,7 +47,7 @@ require('./config/passport-setup'); //Strategy && Serialise/Deserialise
 
 // Locals
 app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
+  res.locals.user = req.user;
   next();
 });
 

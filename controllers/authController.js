@@ -4,6 +4,13 @@ const bcrypt = require('bcryptjs');
 
 const asyncHandler = require('express-async-handler');
 const passport = require('passport');
+const user = require('../models/user');
+
+const roleHierarchy = {
+  guest: 1,
+  member: 2,
+  admin: 3,
+};
 
 const normalizeEmail = (req, res, next) => {
   if (req.body.email) {
@@ -87,16 +94,123 @@ module.exports.login_GET = (req, res) => {
 module.exports.login_POST = [
   normalizeEmail,
 
-  (req, res, next) => {
-    //Testing
-    console.log(req.body);
-    console.log(req.session);
-    next();
-  },
-
   passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
     failureMessage: true,
   }),
 ];
+
+module.exports.logout_GET = (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect('/');
+  });
+};
+
+module.exports.upgrade_GET = asyncHandler(async (req, res, next) => {
+  const currentUserRole = req.user.role;
+  let query = {};
+  let roles = Object.keys(roleHierarchy);
+
+  if (roleHierarchy[currentUserRole] === roleHierarchy['member']) {
+    // If the current user is a member, show only guests
+    query = { role: 'guest' };
+    roles = ['guest', 'member'];
+  } else if (roleHierarchy[currentUserRole] === roleHierarchy['guest']) {
+    // If the current user is a guest, they shouldn't see any other users
+    query = { _id: null };
+    roles = [];
+  } else if (roleHierarchy[currentUserRole] === roleHierarchy['admin']) {
+    // Admins can see all roles
+    query = {};
+  }
+
+  // Fetch users based on the query and sort them by username
+  const users = await User.find(query, 'username role')
+    .sort({ username: 1 })
+    .exec();
+
+  // Render the view with users and roles
+  res.render('upgrade', { users: users, roles: roles });
+});
+
+module.exports.upgrade_POST = asyncHandler(async (req, res) => {
+  const { id, role } = req.body;
+  const currentUserId = req.user.id; // Assuming `req.user` contains the current user's info
+
+  // Validate request body
+  if (!id || !role) {
+    return res.status(400).json({ message: 'User ID and role are required.' });
+  }
+
+  // Validate role
+  if (!roleHierarchy.hasOwnProperty(role)) {
+    return res.status(400).json({ message: 'Invalid role.' });
+  }
+
+  // Find the current user and target user
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(id);
+
+  if (!currentUser) {
+    return res.status(404).json({ message: 'Current user not found.' });
+  }
+
+  if (!targetUser) {
+    return res.status(404).json({ message: 'Target user not found.' });
+  }
+
+  // Check if the current user has a higher role than the target user
+  if (roleHierarchy[currentUser.role] <= roleHierarchy[targetUser.role]) {
+    return res.status(403).json({
+      message: "You do not have permission to update this user's role.",
+    });
+  }
+
+  // Update the target user's role
+  await User.findByIdAndUpdate(id, { role });
+
+  res.redirect('upgrade');
+});
+
+module.exports.delete_POST = asyncHandler(async (req, res) => {
+  const { id, role } = req.body;
+  const currentUserId = req.user.id; // Assuming `req.user` contains the current user's info
+
+  // Validate request body
+  if (!id || !role) {
+    return res.status(400).json({ message: 'User ID and role are required.' });
+  }
+
+  // Validate role
+  if (!roleHierarchy.hasOwnProperty(role)) {
+    return res.status(400).json({ message: 'Invalid role.' });
+  }
+
+  // Find the current user and target user
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(id);
+
+  if (!currentUser) {
+    return res.status(404).json({ message: 'Current user not found.' });
+  }
+
+  if (!targetUser) {
+    return res.status(404).json({ message: 'Target user not found.' });
+  }
+
+  // Check if the current user has a higher role than the target user
+  if (roleHierarchy[currentUser.role] <= roleHierarchy[targetUser.role]) {
+    return res.status(403).json({
+      message: 'You do not have permission to delete this account.',
+    });
+  }
+
+  // Update the target user's role
+  await User.findByIdAndDelete(id);
+
+  res.redirect('upgrade');
+});

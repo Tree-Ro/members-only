@@ -1,9 +1,12 @@
 extends layout
 
 block content
+  h1 Message Board: 
 
-  h1=user ? `You're logged in and here is the user object: ${user}` : `You're not logged in`
-  a(href='/register') Register
-  br
-  br
-  a(href='/login') Log in
+  if (posts && posts.length)
+    each post in posts 
+      div.post
+        p.user By: #{post.user.username}
+        p.message= post.text
+  else 
+    p Could not find any posts

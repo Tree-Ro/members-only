@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  if user
+    h1 Listed below are all users that have a role lower than yours.
+    p Note that you can update the role of any user whose role is lower ranked than yours.
+    ul
+      each account in users
+        li
+          form(method='POST' action='/upgrade')
+            div.form-group
+              p Username: #{account.username}
+              input(type='hidden' name='id' value=account.id)
+              select(name='role')
+                option(value=account.role selected) #{account.role}
+                each role in roles
+                  if role !== account.role
+                    option(value=role) #{role}
+            button(type='submit') Save
+          form(method='POST' action='/delete')
+            input(type='hidden' name='id' value=account.id)
+            input(type='hidden' name='role' value=account.role)
+            button(type='submit') Delete Account
+  else 
+    h1 Please #[a(href='/login') Log In] or #[a(href='/register') Register]

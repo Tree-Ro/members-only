@@ -4,5 +4,12 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    p user: #{user} 
+    div.navbar
+      a(href='/') Home 
+      if user
+        a(href='/upgrade') Manage Users 
+        a(href='/logout') Log out
+      else 
+        a(href='/register') Register  
+        a(href='/login') Log in 
     block content

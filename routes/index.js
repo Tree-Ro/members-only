@@ -13,4 +13,11 @@ router.post('/register', authController.register_POST);
 router.get('/login', authController.login_GET);
 router.post('/login', authController.login_POST);
 
+router.get('/logout', authController.logout_GET);
+
+router.get('/upgrade', authController.upgrade_GET);
+router.post('/upgrade', authController.upgrade_POST);
+
+router.post('/delete', authController.delete_POST);
+
 module.exports = router;

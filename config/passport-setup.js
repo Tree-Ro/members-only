@@ -7,8 +7,6 @@ passport.use(
   new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
     async function (email, password, done) {
-      console.log('LocalStrategy Invoked'); //To check if the strategy is being run
-
       try {
         const user = await User.findOne({ email: email });
         if (!user) return done(null, false, { message: 'Incorrect email' });
